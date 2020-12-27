@@ -33,6 +33,7 @@ function reducer(state = { filters: INIT_FILTERS, data: INIT_DATA }, { type, pay
             addToPath(filters, filters[index].key, params);
             return { ...state, filters };
         }
+
     } else if (type === 'STAR_ROW') {
         const index = state.data.findIndex(row => row.id === payload);
         if (index !== -1) {

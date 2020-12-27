@@ -8,11 +8,11 @@ function applyAllFilters(filters, data) {
                     return (d[element.key].toLowerCase().includes(element.value.toLowerCase()))
                 })
             } else {
-                filteredData = binaryFilter(filteredData, element.value);
+                if (element.value.length >= 4) {
+                    filteredData = binaryFilter(filteredData, element.value);
+                }
             }
-
         }
-
     });
     return filteredData;
 }
@@ -21,24 +21,36 @@ function binarySearch(arr, x) {
     let start = 0, end = arr.length - 1;
     while (start <= end) {
         let mid = Math.floor((start + end) / 2);
-        if (arr[mid]['date'].includes(x)) return mid;
-        else if (arr[mid] < x)
+        if (arr[mid]['date'].includes(x)) {
+            return mid;
+        } else if (arr[mid]['date'] < x) {
             start = mid + 1;
-        else
+        } else if (arr[mid]['date'] > x) {
             end = mid - 1;
+        }
+
     }
     return -1;
 }
 
 function binaryFilter(data, key) {
-    data.sort();
+    let coppiedData = [...data];
+    coppiedData.sort((a, b) => {
+        if (a['date'] < b['date']) {
+            return -1;
+        } else if (a > b) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
     let filteredArr = [];
     let result = 0;
     while (result !== -1) {
-        result = binarySearch(data, key);
+        result = binarySearch(coppiedData, key);
         if (result !== -1) {
-            filteredArr.push(data[result]);
-            data.splice(result, 1);
+            filteredArr.push(coppiedData[result]);
+            coppiedData.splice(result, 1);
         }
     }
     return filteredArr;

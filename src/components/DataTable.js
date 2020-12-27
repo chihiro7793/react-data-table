@@ -18,9 +18,9 @@ function DataTable({
     sortConfig,
     onStar
 }) {
-    let filteredData = data;
-    filteredData = applyAllFilters(filters, filteredData);
-    const dataShownOnCurrentPage = filteredData.slice(currentPage * 20, currentPage * 20 + 20)
+
+    data = applyAllFilters(filters, data);
+    const dataShownOnCurrentPage = data.slice(currentPage * 20, currentPage * 20 + 20)
 
     //Set asc or desc icon on click of header cells
     function setSortIcon(column) {
