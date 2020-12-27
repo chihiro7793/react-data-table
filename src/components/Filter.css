@@ -1,0 +1,8 @@
+.filter{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.filter__label{
+padding-bottom: 5px;
+}
