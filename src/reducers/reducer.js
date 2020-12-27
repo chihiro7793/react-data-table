@@ -1,5 +1,10 @@
-// import { useHistory } from 'react-router-dom';
-import data from '../data/data.json';
+import { isSavedinStorageArray, existingEntries } from '../localStorage/localStorage';
+import { mapPureDataToInitData } from '../functions/mapPureDataToInitData';
+import { mapParamstoFilters } from '../functions/addToPath';
+import { addToPath } from '../functions/addToPath';
+import data from '../data/data.json'
+
+let params = new URLSearchParams(window.location.search);
 
 const FILTERS = [
     { id: 1, name: 'فیلد', key: 'field', value: '' },
@@ -7,40 +12,16 @@ const FILTERS = [
     { id: 3, name: 'تاریخ', key: 'date', value: '' },
     { id: 4, name: 'نام تغییردهنده', key: 'name', value: '' }
 ]
-let params = new URLSearchParams(window.location.search);
-let existingEntries = JSON.parse(localStorage.getItem("allEntries"));
-if (existingEntries == null) existingEntries = [];
-let isSavedinStorageArray = JSON.parse(localStorage.getItem("allEntries") || "[]");
 
-const INIT_DATA = data.map(d => {
-    const index = isSavedinStorageArray.findIndex(storeObj => storeObj.id === d.id);
-    if (index !== -1) {
-        return { ...d, isStarred: true }
-    } else {
-        return { ...d, isStarred: false }
-    }
-});
+const INIT_FILTERS = params.get('filter') === null ? FILTERS : mapParamstoFilters(params, FILTERS);
+const INIT_DATA = mapPureDataToInitData(data, isSavedinStorageArray);
 
-const mapParamstoFilters = (params) => {
-    const filterKey = params.get('filter');
-    console.log(filterKey);
-    const final = FILTERS.map(filter => {
-        if (filter.key === filterKey) {
-            return { ...filter, value: params.get('value') }
-        } else {
-            return { ...filter };
-        }
-    });
-    return final;
-}
-const INIT_FILTERS = params.get('filter') === null ? FILTERS : mapParamstoFilters(params);
-
-const reducer = (state = { filters: INIT_FILTERS, data: INIT_DATA }, { type, payload }) => {
-
+function reducer(state = { filters: INIT_FILTERS, data: INIT_DATA }, { type, payload }) {
     if (type === 'FILTER_DATA') {
-        const index = state.filters.findIndex(filter => filter.id === payload.id);
+        //Update filters when user enters a filter value
+        const filters = [...state.filters];
+        const index = filters.findIndex(filter => filter.id === payload.id);
         if (index !== -1) {
-            const filters = [...state.filters];
             filters.splice(
                 index,
                 1,
@@ -49,33 +30,7 @@ const reducer = (state = { filters: INIT_FILTERS, data: INIT_DATA }, { type, pay
                     value: payload.value
                 }
             );
-
-            filters.forEach(filter => {
-                if (filter.value.length !== 0) {
-                    if (params.toString().includes(filters[index].key) ||
-                        params.toString().includes(filter.key)) {
-                        params.set('filter', filter.key);
-                        params.set('value', filter.value);
-                        window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-                    } else {
-                        params.append('filter', filter.key);
-                        params.append('value', filter.value);
-                        window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-                    }
-                } else {
-                    console.log('khar');
-                    if (params.toString().includes(filter.key)) {
-                        params.delete('filter', filter.key);
-                        params.delete('value', filter.value);
-                        window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
-                    } else {
-                        console.log('khar prim');
-                        if (params.toString().length === 0) {
-                            window.history.pushState({}, '', `${window.location.pathname}`);
-                        }
-                    }
-                }
-            })
+            addToPath(filters, filters[index].key, params);
             return { ...state, filters };
         }
     } else if (type === 'STAR_ROW') {
@@ -89,11 +44,13 @@ const reducer = (state = { filters: INIT_FILTERS, data: INIT_DATA }, { type, pay
                 1,
                 coppiedItem
             )
+            //Save a starred row in localStorage
             if (coppiedItem.isStarred) {
                 const localStorageEntry = { 'id': payload, 'isStarred': coppiedItem.isStarred };
                 existingEntries.push(localStorageEntry);
                 localStorage.setItem("allEntries", JSON.stringify(existingEntries));
             } else {
+                //Delete a starred row from local storage after removing the star
                 const index = existingEntries.findIndex(entry => entry.id === coppiedItem.id);
                 if (index !== -1) {
                     existingEntries.splice(index, 1);

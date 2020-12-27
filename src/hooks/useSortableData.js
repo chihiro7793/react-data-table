@@ -1,5 +1,5 @@
 import React from 'react';
-import compare from '../functions/compare'
+import compareWords from '../functions/compareWords'
 
 const PERSIAN_ALPHABET = [
     'ا', 'آ', 'ب', 'پ', 'ت'
@@ -10,6 +10,7 @@ const PERSIAN_ALPHABET = [
     , 'ل', 'م', 'ن', 'و', 'ه', 'ی'
 ];
 
+//A custom hook to sort items asc/desc  
 const useSortableData = (items, config = null) => {
     const [sortConfig, setSortConfig] = React.useState(config);
 
@@ -18,6 +19,7 @@ const useSortableData = (items, config = null) => {
 
         if (sortConfig !== null) {
             if (sortConfig.key === 'name') {
+                //Regular sort for english words
                 sortableItems.sort((a, b) => {
                     if (a[sortConfig.key] < b[sortConfig.key]) {
                         return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -28,11 +30,12 @@ const useSortableData = (items, config = null) => {
                     return 0;
                 });
             } else {
+                //Sorts based on persian alphabet 
                 sortableItems.sort((a, b) => {
-                    if (compare(a[sortConfig.key], b[sortConfig.key], PERSIAN_ALPHABET)) {
+                    if (compareWords(a[sortConfig.key], b[sortConfig.key], PERSIAN_ALPHABET)) {
                         return sortConfig.direction === 'ascending' ? -1 : 1;
                     }
-                    if (compare(b[sortConfig.key], a[sortConfig.key], PERSIAN_ALPHABET)) {
+                    if (compareWords(b[sortConfig.key], a[sortConfig.key], PERSIAN_ALPHABET)) {
                         return sortConfig.direction === 'ascending' ? 1 : -1;
                     }
                     return 0;

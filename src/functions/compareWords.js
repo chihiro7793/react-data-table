@@ -1,21 +1,19 @@
 
-var english = /^[A-Za-z0-9_]*$/;
-var number = /^[0-9]*$/
-
-function compare(word1, word2, alphabet) {
+//sort words based on an input alphabet, which here is persian alaphabet
+//if words consists of numbers and english letters prioritize them
+function compareWords(word1, word2, alphabet) {
     const size1 = word1.length;
     const size2 = word2.length;
     const size = Math.max(size1, size2);
-
-    if (number.test(word1) && number.test(word2)) {
-        if (word1 < word2) {
+    if (isNumber(word1) && isNumber(word2)) {
+        if (word1 < word2)
             return false;
-        } else {
+        else
             return true;
-        }
-    } else if (number.test(word1) && !number.test(word2)) {
+
+    } else if (isNumber(word1) && !isNumber(word2)) {
         return true;
-    } else if (!number.test(word1) && number.test(word2)) {
+    } else if (!isNumber(word1) && isNumber(word2)) {
         return false;
     } else if (isEnglish(word1) && isEnglish(word2)) {
         return word1 > word2;
@@ -51,10 +49,10 @@ function compare(word1, word2, alphabet) {
     }
 }
 
-function isEnglish(word) {
+function isEnglish(word, pattern = /^[A-Za-z0-9_]*$/) {
     let index = 0;
     while (word.length > 1) {
-        if (english.test(word.charAt(index))) {
+        if (pattern.test(word.charAt(index))) {
             index++;
             word = word.substr(0, index);
             continue;
@@ -65,4 +63,8 @@ function isEnglish(word) {
     return true;
 }
 
-export default compare;
+function isNumber(word, pattern = /^[0-9]*$/) {
+    return (pattern.test(word));
+}
+
+export default compareWords;
