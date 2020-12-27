@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import './Filter.css';
 
 function Filter({ name, onFilterChange, id, value }) {
